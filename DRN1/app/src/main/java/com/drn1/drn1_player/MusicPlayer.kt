@@ -9,6 +9,7 @@ import java.io.IOException
 
 
 class MediaCore {
+
      fun nowplaying(){
         println("Media Core "+ DataHolder.get_Media_Type())
 
@@ -57,6 +58,8 @@ class MediaCore {
          }
          }
 }
+
+
 
 class MusicPlayer  : AppCompatActivity() {
     // val player: SimpleExoPlayer by lazy { SimpleExoPlayer.Builder(this).build()}

@@ -2,39 +2,36 @@ package com.drn1.drn1_player
 
 
 import android.Manifest
+import android.R
 import android.app.AlertDialog
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
-
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import androidx.localbroadcastmanager.content.LocalBroadcastManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.drn1.drn1_player.databinding.ActivityMainBinding
+import com.drn1.drn1_player.services.Constants
+import com.drn1.drn1_player.services.NotificationService
+import com.flurry.android.FlurryAgent
+import com.flurry.android.marketing.FlurryMarketingModule
+import com.flurry.android.marketing.FlurryMarketingOptions
+import com.flurry.android.marketing.messaging.FlurryMessagingListener
+import com.flurry.android.marketing.messaging.notification.FlurryMessage
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import java.io.IOException
-import android.content.pm.PackageManager
-import android.graphics.Color
-
-import androidx.core.content.ContextCompat
-
-import androidx.core.app.ActivityCompat
-
-import android.os.Handler
-import android.os.Looper
-import androidx.recyclerview.widget.LinearLayoutManager
-import com.flurry.android.FlurryAgent
-import android.R
-
-import com.flurry.android.marketing.FlurryMarketingOptions
-import com.flurry.android.marketing.messaging.FlurryMessagingListener
-import com.flurry.android.marketing.FlurryMarketingModule
-import com.flurry.android.marketing.messaging.notification.FlurryMessage
-
-
-
-
 
 
 class MainActivity : AppCompatActivity() {
@@ -50,31 +47,45 @@ class MainActivity : AppCompatActivity() {
 
         override fun onNotificationCancelled(flurryMessage: FlurryMessage) {}
         override fun onTokenRefresh(s: String) {
-            println("TOKEN "+s)
+            println("TOKEN " + s)
         }
+
         override fun onNonFlurryNotificationReceived(o: Any) {}
     }
 
-   // val player: SimpleExoPlayer by lazy { SimpleExoPlayer.Builder(this).build()}
+    // val player: SimpleExoPlayer by lazy { SimpleExoPlayer.Builder(this).build()}
     private lateinit var binding: ActivityMainBinding
-    private var locationManager : LocationManager? = null
+    private var locationManager: LocationManager? = null
 
     val MY_PERMISSIONS_REQUEST_LOCATION = 99
 
+
+    var mLocalBroadcastManager: LocalBroadcastManager? = null
+    var mBroadcastReceiver: BroadcastReceiver = object : BroadcastReceiver() {
+        override fun onReceive(context: Context?, intent: Intent) {
+            if (intent.action == "com.durga.action.close") {
+                NotificationService.player!!.stop()
+                NotificationService.player = null
+                finishAffinity()
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 
-        DataHolder.set_Media("https://api.drn1.com.au:9000/station/DRN1?uuid=" +
-        Settings.Secure.getString(
-            contentResolver,
-            Settings.Secure.ANDROID_ID
-        ))
+        DataHolder.set_Media(
+            "https://api.drn1.com.au:9000/station/DRN1?uuid=" +
+                    Settings.Secure.getString(
+                        contentResolver,
+                        Settings.Secure.ANDROID_ID
+                    )
+        )
 
         Thread.sleep(1000L)
 
-        if(DataHolder.get_Uuid() == "null"){
+        if (DataHolder.get_Uuid() == "null") {
             DataHolder.set_Uuid(
                 Settings.Secure.getString(
                     contentResolver,
@@ -83,7 +94,7 @@ class MainActivity : AppCompatActivity() {
             )
         }
 
-      // val myFlurryMessagingListener: FlurryMessagingListener = MyFlurryMessagingListener(this)
+        // val myFlurryMessagingListener: FlurryMessagingListener = MyFlurryMessagingListener(this)
         val flurryMessagingOptions = FlurryMarketingOptions.Builder()
             .setupMessagingWithAutoIntegration()
             .withDefaultNotificationChannelId("DRN1")
@@ -109,10 +120,14 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         //setContentView(R.layout.activity_main)
 
-        binding.recyclingViewMain.layoutManager = LinearLayoutManager( this, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclingViewDRN1Shows.layoutManager = LinearLayoutManager( this, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclingViewUnitedShows.layoutManager = LinearLayoutManager( this, LinearLayoutManager.HORIZONTAL, false)
-        binding.recyclingViewLifeShows.layoutManager = LinearLayoutManager( this, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclingViewMain.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclingViewDRN1Shows.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclingViewUnitedShows.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.recyclingViewLifeShows.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
 
         /* val mediaItem: MediaItem = MediaItem.fromUri("http://stream.radiomedia.com.au:8003/stream")
@@ -124,7 +139,7 @@ class MainActivity : AppCompatActivity() {
  */
 
 
-      //  runThread("http://stream.radiomedia.com.au:8003/stream")
+        //  runThread("http://stream.radiomedia.com.au:8003/stream")
         fetchStationJson()
         fetchProgramJson("DRN1")
         fetchProgramJson("DRN1United")
@@ -136,7 +151,16 @@ class MainActivity : AppCompatActivity() {
                 Mhandler.postDelayed(this, 5000)
             }
         })
-        }
+
+        mLocalBroadcastManager = LocalBroadcastManager.getInstance(this)
+        val mIntentFilter = IntentFilter()
+        mIntentFilter.addAction("com.durga.action.close")
+        mLocalBroadcastManager!!.registerReceiver(mBroadcastReceiver, mIntentFilter)
+
+        val serviceIntent = Intent(this, NotificationService::class.java)
+        serviceIntent.action = Constants.ACTION.STARTFOREGROUND_ACTION
+        startService(serviceIntent)
+    }
 
 
 /* CHECK LOCATIOON*/
@@ -163,7 +187,8 @@ class MainActivity : AppCompatActivity() {
                 AlertDialog.Builder(this, R.style.Theme_Material_Dialog_Alert)
                     .setTitle("This App Requires Location Services")
                     .setMessage("DRN1 uses your location for:\n - Competitions\n - Fuel Prices\n - Programs & Stations.\n\nPlease note that the app may play up if we don't have your location.")
-                    .setPositiveButton("ok"
+                    .setPositiveButton(
+                        "ok"
                     ) { dialogInterface, i -> //Prompt the user once explanation has been shown
                         ActivityCompat.requestPermissions(
                             this@MainActivity,
@@ -174,8 +199,6 @@ class MainActivity : AppCompatActivity() {
                     .setCancelable(false)
                     .create()
                     .show()
-
-
 
 
             } else {
@@ -203,8 +226,13 @@ class MainActivity : AppCompatActivity() {
                 locationManager = getSystemService(LOCATION_SERVICE) as LocationManager?
                 try {
                     // Request location updates
-                    locationManager?.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0L, 0f, locationListener)
-                } catch(ex: SecurityException) {
+                    locationManager?.requestLocationUpdates(
+                        LocationManager.NETWORK_PROVIDER,
+                        0L,
+                        0f,
+                        locationListener
+                    )
+                } catch (ex: SecurityException) {
                     //("myTag", "Security Exception, no location available")
                 }
             }
@@ -213,34 +241,33 @@ class MainActivity : AppCompatActivity() {
     /* END LOACTION CHDECK*/
 
 
-
-
-
     /// LOCATION LISTENER
 
     private val locationListener: LocationListener = object : LocationListener {
         override fun onLocationChanged(location: Location) {
 
             //https://api.drn1.com.au:9000/listener?uuid=\(MusicPlayer.uuid ?? "")&lat=\(latitude)&long=\(longitude)&speed=\(speed)"
-            val url = "https://api.drn1.com.au:9000/listener?uuid=" + DataHolder.get_Uuid() + "&lat=" + location.latitude + "&long=" +location.longitude
+            val url =
+                "https://api.drn1.com.au:9000/listener?uuid=" + DataHolder.get_Uuid() + "&lat=" + location.latitude + "&long=" + location.longitude
             println(url)
             val request = Request.Builder().url(url).build()
             val client = OkHttpClient()
             client.newCall(request).enqueue(object : Callback {
                 override fun onFailure(call: Call, e: IOException) {
                     //DO THAT
-                    println("LOCATION FAILED TO UPDATED "+ location.longitude + ":" + location.latitude)
+                    println("LOCATION FAILED TO UPDATED " + location.longitude + ":" + location.latitude)
                 }
 
                 override fun onResponse(call: Call, response: Response) {
                     //DO THIS
-                    println("LOCATION UPDATED " + DataHolder.get_Uuid() + " : "+ location.longitude + ":" + location.latitude)
+                    println("LOCATION UPDATED " + DataHolder.get_Uuid() + " : " + location.longitude + ":" + location.latitude)
 
                 }
             })
 
-        // thetext.text = ("" + location.longitude + ":" + location.latitude)
+            // thetext.text = ("" + location.longitude + ":" + location.latitude)
         }
+
         override fun onStatusChanged(provider: String, status: Int, extras: Bundle) {}
         override fun onProviderEnabled(provider: String) {}
         override fun onProviderDisabled(provider: String) {}
@@ -248,12 +275,10 @@ class MainActivity : AppCompatActivity() {
     /// END LOCATION LISTER
 
 
-
-
-    fun fetchProgramJson(programName:String){
+    fun fetchProgramJson(programName: String) {
         //https://api.drn1.com.au/api-access/programs/
 
-        val url = "https://api.drn1.com.au/api-access/programs/"+programName
+        val url = "https://api.drn1.com.au/api-access/programs/" + programName
         val request = Request.Builder().url(url).build()
         val client = OkHttpClient()
         client.newCall(request).enqueue(object : Callback {
@@ -279,9 +304,21 @@ class MainActivity : AppCompatActivity() {
                     Thread {
                         runOnUiThread {
                             when {
-                                programName.equals("DRN1", true) -> binding.recyclingViewDRN1Shows.adapter = MainProgramAdapter(programfeed)
-                                programName.equals("DRN1United", true) -> binding.recyclingViewUnitedShows.adapter = MainProgramAdapter(programfeed)
-                                programName.equals("1Life", true) -> binding.recyclingViewLifeShows.adapter = MainProgramAdapter(programfeed)
+                                programName.equals(
+                                    "DRN1",
+                                    true
+                                ) -> binding.recyclingViewDRN1Shows.adapter =
+                                    MainProgramAdapter(programfeed)
+                                programName.equals(
+                                    "DRN1United",
+                                    true
+                                ) -> binding.recyclingViewUnitedShows.adapter =
+                                    MainProgramAdapter(programfeed)
+                                programName.equals(
+                                    "1Life",
+                                    true
+                                ) -> binding.recyclingViewLifeShows.adapter =
+                                    MainProgramAdapter(programfeed)
 
 
                             }
@@ -299,7 +336,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     //Fetch Stations
-    fun fetchStationJson(){
+    fun fetchStationJson() {
 
 
         val url = "https://api.drn1.com.au/station/allstations"
@@ -334,6 +371,10 @@ class MainActivity : AppCompatActivity() {
             }
         })
     }
-
     //END FETCH STATION
+
+    override fun onDestroy() {
+        super.onDestroy()
+        mLocalBroadcastManager!!.unregisterReceiver(mBroadcastReceiver);
+    }
 }

@@ -7,7 +7,6 @@
     tools:context=".MainActivity">
 
     <ScrollView
-        android:fillViewport="true"
         android:id="@+id/ScrollView01"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
@@ -15,99 +14,101 @@
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:fillViewport="true"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/fragment_container_view"
-            android:name="com.drn1.drn1_player.fragment.Mplayer"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="parent"
-            tools:layout="@layout/fragment_mplayer" />
+
+            <androidx.fragment.app.FragmentContainerView
+                android:id="@+id/fragment_container_view"
+                android:name="com.drn1.drn1_player.fragment.Mplayer"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="parent"
+                tools:layout="@layout/fragment_mplayer" />
 
 
-        <TextView
-            android:id="@+id/OurStations"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="Our Stations"
-            android:textStyle="bold"
-            android:textSize="26dp"
-            android:layout_marginLeft="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/fragment_container_view">
-        </TextView>
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclingView_Main"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/OurStations"
-            app:layout_constraintVertical_bias="0.058" />
+            <TextView
+                android:id="@+id/OurStations"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginLeft="8dp"
+                android:text="Our Stations"
+                android:textSize="26dp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/fragment_container_view"></TextView>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclingView_Main"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/OurStations"
+                app:layout_constraintVertical_bias="0.058" />
 
 
             <TextView
                 android:id="@+id/DRN1Shows"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="DRN1 Shows"
-                android:textStyle="bold"
-                android:textSize="20dp"
                 android:layout_marginLeft="8dp"
+                android:text="DRN1 Shows"
+                android:textSize="20dp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/recyclingView_Main">
-            </TextView>
+                app:layout_constraintTop_toBottomOf="@+id/recyclingView_Main"></TextView>
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recyclingView_DRN1Shows"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginRight="8dp"
-            android:layout_marginBottom="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/DRN1Shows"
-            app:layout_constraintVertical_bias="0.058" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recyclingView_DRN1Shows"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginRight="8dp"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/DRN1Shows"
+                app:layout_constraintVertical_bias="0.058" />
 
 
             <TextView
                 android:id="@+id/UnitedShows"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="United Shows"
-                android:textStyle="bold"
-                android:textSize="20dp"
                 android:layout_marginLeft="8dp"
+                android:text="United Shows"
+                android:textSize="20dp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/recyclingView_DRN1Shows">
-            </TextView>
+                app:layout_constraintTop_toBottomOf="@+id/recyclingView_DRN1Shows"></TextView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclingView_UnitedShows"
                 android:layout_width="match_parent"
@@ -129,15 +130,15 @@
                 android:id="@+id/lifeShows"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:text="1Life Shows"
-                android:textStyle="bold"
-                android:textSize="20dp"
                 android:layout_marginLeft="8dp"
+                android:text="1Life Shows"
+                android:textSize="20dp"
+                android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/recyclingView_UnitedShows">
-            </TextView>
+                app:layout_constraintTop_toBottomOf="@+id/recyclingView_UnitedShows"></TextView>
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recyclingView_LifeShows"
                 android:layout_width="match_parent"

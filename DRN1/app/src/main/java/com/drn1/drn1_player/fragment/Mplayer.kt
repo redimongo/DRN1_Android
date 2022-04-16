@@ -2,36 +2,30 @@ package com.drn1.drn1_player.fragment
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
-import com.drn1.drn1_player.*
+import androidx.fragment.app.Fragment
 import com.drn1.drn1_player.DataHolder
-import com.drn1.drn1_player.MediaCore
+import com.drn1.drn1_player.R
+import com.drn1.drn1_player.services.Constants
+import com.drn1.drn1_player.services.NotificationService
+import com.drn1.drn1_player.services.NotificationService.Companion.player
 import com.flurry.android.FlurryAgent
 import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.SimpleExoPlayer
 import com.squareup.picasso.Picasso
-import java.util.HashMap
-import android.net.Uri
-
-
-
-
-
-
 
 
 class Mplayer : Fragment(), View.OnClickListener {
 
-    private lateinit var player: SimpleExoPlayer
+    //    private lateinit var player: SimpleExoPlayer
     lateinit var SG: TextView
     lateinit var AG: TextView
     lateinit var MEDIAIMAGE: ImageView
@@ -40,10 +34,9 @@ class Mplayer : Fragment(), View.OnClickListener {
     var currentTrack: String? = null
 
 
-
     override fun onAttach(context: Context) {
         super.onAttach(context)
-        player = SimpleExoPlayer.Builder(context).build()
+//        player = SimpleExoPlayer.Builder(context).build()
         Song = DataHolder.get_Score()
     }
 
@@ -56,16 +49,14 @@ class Mplayer : Fragment(), View.OnClickListener {
 
 
     override fun onStart() {
-
         super.onStart()
-       // println("FIRST START " + DataHolder.get_Media())
-        if(!player.isPlaying){
-            println("button pressed & Playing")
-            play()
-        }
-        else{
-            println("PLAYER WONT PLAY BECAUSE IT ALREADY IS PLAYING")
-        }
+        // println("FIRST START " + DataHolder.get_Media())
+//        if (!player.isPlaying) {
+//            println("button pressed & Playing")
+//            play()
+//        } else {
+//            println("PLAYER WONT PLAY BECAUSE IT ALREADY IS PLAYING")
+//        }
 
 
     }
@@ -73,7 +64,7 @@ class Mplayer : Fragment(), View.OnClickListener {
 
     override fun onStop() {
         super.onStop()
-       // player.stop()
+        // player.stop()
     }
 
     override fun onDestroy() {
@@ -84,34 +75,42 @@ class Mplayer : Fragment(), View.OnClickListener {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        player.stop()
+//        player.stop()
     }
 
-    private fun play(){
+    private fun play() {
         currentTrack = DataHolder.get_Media()
         println("I RAN PLAYER " + currentTrack)
 
         val mediaItem: MediaItem = MediaItem.fromUri(DataHolder.get_Media())
 
-        player.setMediaItem(mediaItem)
-        player.prepare()
+        player!!.setMediaItem(mediaItem)
+        player!!.prepare()
 
-        player.play()
+        player!!.play()
     }
 
-    private fun changeTrack(){
-        if(currentTrack != DataHolder.get_Media())
-        {
 
-            player.stop()
-            player.removeMediaItem(0)
-                        //player = null
-            val mediaItem: MediaItem = MediaItem.fromUri(DataHolder.get_Media())
-            currentTrack = DataHolder.get_Media()
-            player.setMediaItem(mediaItem)
-            player.prepare()
+    private fun changeTrack() {
+//        currentTrack = DataHolder.get_Media()
+        if (player != null) {
+            if (activity != null) {
+                val serviceIntent = Intent(activity, NotificationService::class.java)
+                serviceIntent.action = Constants.ACTION.PLAY_ACTION
+                activity?.startService(serviceIntent)
 
-            player.play()
+                if (player != null)
+                    if (player!!.isPlaying) {
+                        println("button pressed & Paused")
+                        btn.setBackgroundResource(0)
+                        btn.setImageResource(R.drawable.exo_icon_circular_play);
+                    } else {
+                        println("button pressed & Playing")
+                        btn.setBackgroundResource(0)
+                        btn.setImageResource(R.drawable.exo_icon_pause)
+                    }
+            }
+
         }
     }
 
@@ -121,13 +120,18 @@ class Mplayer : Fragment(), View.OnClickListener {
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+    lateinit var btn: ImageButton
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
         //val context = inflater.context
         //binding = MplayerBinding.inflate(com.drn1.drn1.R.layout.fragment_mplayer)
 
         //val rooView: View = inflater.inflate(R.layout.fragment_mplayer, container, false)
         val root: View = inflater.inflate(R.layout.fragment_mplayer, container, false)
-        val btn = root.findViewById(R.id.mPlayPP) as ImageButton
+        btn = root.findViewById(R.id.mPlayPP) as ImageButton
         SG = root.findViewById(R.id.song) as TextView
         AG = root.findViewById(R.id.artist) as TextView
         MEDIAIMAGE = root.findViewById(R.id.MediaPlayerImage)
@@ -137,47 +141,45 @@ class Mplayer : Fragment(), View.OnClickListener {
         //SG.setText(Song)
 
         root.findViewById<ImageView>(R.id.MediaPlayerImage).setOnClickListener {
-               if(DataHolder.get_Media_Type() == "radio" && DataHolder.get_AdStichrURL() != "") {
-                   val browserIntent =
-                       Intent(Intent.ACTION_VIEW, Uri.parse(DataHolder.get_AdStichrURL()))
-                   startActivity(browserIntent)
-               }
-
-        }
-
-
-        if(player.isPlaying){
-            println("button pressed & Paused")
-            btn.setBackgroundResource(0)
-            btn.setImageResource(R.drawable.exo_icon_circular_play);
-
-
-        }else {
-            println("button pressed & Playing")
-            btn.setBackgroundResource(0)
-            btn.setImageResource(R.drawable.exo_icon_pause)
-        }
-
-        btn.setOnClickListener {
-           if(player.isPlaying){
-                println("button pressed & Paused")
-                btn.setBackgroundResource(0)
-                btn.setImageResource(R.drawable.exo_icon_circular_play);
-
-                player.stop()
-            }else {
-                println("button pressed & Playing")
-                btn.setBackgroundResource(0)
-                btn.setImageResource(R.drawable.exo_icon_pause)
-                play()
+            if (DataHolder.get_Media_Type() == "radio" && DataHolder.get_AdStichrURL() != "") {
+                val browserIntent =
+                    Intent(Intent.ACTION_VIEW, Uri.parse(DataHolder.get_AdStichrURL()))
+                startActivity(browserIntent)
             }
 
+        }
+
+
+        btn.setOnClickListener {
+            if (player != null) {
+                if (player!!.isPlaying) {
+                    println("button pressed & Paused")
+                    btn.setBackgroundResource(0)
+                    btn.setImageResource(R.drawable.exo_icon_circular_play);
+                    player!!.pause()
+                    NotificationService.bigViews!!.setImageViewResource(
+                        R.id.status_bar_play,
+                        R.drawable.exo_controls_play
+                    )
+                } else {
+                    println("button pressed & Playing")
+                    btn.setBackgroundResource(0)
+                    btn.setImageResource(R.drawable.exo_icon_pause)
+                    player!!.play()
+                    NotificationService.bigViews!!.setImageViewResource(
+                        R.id.status_bar_play,
+                        R.drawable.exo_icon_pause
+                    )
+                }
+                NotificationService.mNotificationManager!!.notify(
+                    Constants.NOTIFICATION_ID.FOREGROUND_SERVICE,
+                    NotificationService.mBuilder!!.build()
+                )
+            }
             //This function allows us to talk to the Main Activity (note that you can only talk to the activity that has the fragment embedded into its Activity.
             //(activity as MainActivity).bbtn()
 
         }
-
-
 
 
         // Toast.makeText(mContext, "THIS IS SAMPLE TOAST", Toast.LENGTH_SHORT).show()
@@ -192,7 +194,7 @@ class Mplayer : Fragment(), View.OnClickListener {
         val handler = Handler(Looper.getMainLooper())
         handler.post(object : Runnable {
             override fun run() {
-                if(SG.text != DataHolder.get_Song()) {
+                if (SG.text != DataHolder.get_Song()) {
                     SG.setText(DataHolder.get_Song())
                     AG.setText(DataHolder.get_Artist())
 

@@ -22,4 +22,5 @@
         <item name="android:textColorPrimary">#595959</item>
         <item name="android:colorAccent">#1b5e20</item>
     </style>
+
 </resources>

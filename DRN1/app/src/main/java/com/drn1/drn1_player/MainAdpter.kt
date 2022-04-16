@@ -11,7 +11,8 @@ import com.squareup.picasso.Picasso
 import java.util.HashMap
 
 
-class MainStationAdapter(val stationsFeed: StationsFeed): RecyclerView.Adapter<StationViewHolder>() {
+class MainStationAdapter(val stationsFeed: StationsFeed) :
+    RecyclerView.Adapter<StationViewHolder>() {
 
     //Number of Items
     override fun getItemCount(): Int {
@@ -19,14 +20,14 @@ class MainStationAdapter(val stationsFeed: StationsFeed): RecyclerView.Adapter<S
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StationViewHolder {
-       //How do we even create a view?
+        //How do we even create a view?
         val layoutInflater = LayoutInflater.from(parent.context)
         val cellForRow = layoutInflater.inflate(R.layout.station_row, parent, false)
         return StationViewHolder(cellForRow)
     }
 
     override fun onBindViewHolder(holder: StationViewHolder, position: Int) {
-      //  val StationName = findViewById(R.id.textView_station_name)
+        //  val StationName = findViewById(R.id.textView_station_name)
         val stationName = stationsFeed.data.get(position)
         //holder?.view?.findViewById<TextView>(R.id.textView_station_name)?.text = StationName.name
         val stationImageView = holder.view.findViewById<ImageView>(R.id.imageView_station)
@@ -39,8 +40,7 @@ class MainStationAdapter(val stationsFeed: StationsFeed): RecyclerView.Adapter<S
 }
 
 
-
-class MainProgramAdapter(val programFeed: ProgramFeed): RecyclerView.Adapter<ProgramViewHolder>() {
+class MainProgramAdapter(val programFeed: ProgramFeed) : RecyclerView.Adapter<ProgramViewHolder>() {
 
     //Number of Items
     override fun getItemCount(): Int {
@@ -68,9 +68,7 @@ class MainProgramAdapter(val programFeed: ProgramFeed): RecyclerView.Adapter<Pro
 }
 
 
-class StationViewHolder(val view: View,var station: Data? = null): RecyclerView.ViewHolder(view) {
-
-
+class StationViewHolder(val view: View, var station: Data? = null) : RecyclerView.ViewHolder(view) {
 
     init {
         view.setOnClickListener {
@@ -87,20 +85,21 @@ class StationViewHolder(val view: View,var station: Data? = null): RecyclerView.
 
 }
 
-class ProgramViewHolder(val view: View, var podcast: Program? = null): RecyclerView.ViewHolder(view) {
-    companion object{
+class ProgramViewHolder(val view: View, var podcast: Program? = null) :
+    RecyclerView.ViewHolder(view) {
+    companion object {
         val PODCAST_NAME_KEY = "PODCAST"
         val PODCAST_SHORT_NAME_KEY = "POSTCAST_URL"
     }
-    init{
+
+    init {
         view.setOnClickListener {
             println("TESTING PROGRAM CLICK")
 
 
-
             val intent = Intent(view.context, PodcastActivity::class.java)
-            intent.putExtra(PODCAST_NAME_KEY, podcast?.title )
-            intent.putExtra(PODCAST_SHORT_NAME_KEY, podcast?.url )
+            intent.putExtra(PODCAST_NAME_KEY, podcast?.title)
+            intent.putExtra(PODCAST_SHORT_NAME_KEY, podcast?.url)
             view.context.startActivity(intent)
         }
 
