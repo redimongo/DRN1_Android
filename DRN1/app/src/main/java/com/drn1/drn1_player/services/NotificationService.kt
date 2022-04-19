@@ -1,17 +1,22 @@
 package com.drn1.drn1_player.services
 
 import android.app.*
+import android.app.NotificationManager.IMPORTANCE_LOW
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.os.IBinder
+import android.support.v4.media.session.MediaSessionCompat
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.localbroadcastmanager.content.LocalBroadcastManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.transition.Transition
+import com.drn1.drn1_player.DataHolder
+import com.drn1.drn1_player.DataHolder.current
 import com.drn1.drn1_player.DataHolder.get_Artist
 import com.drn1.drn1_player.DataHolder.get_Media
 import com.drn1.drn1_player.DataHolder.get_MediaPlayerImage
@@ -22,8 +27,10 @@ import com.drn1.drn1_player.R
 import com.drn1.drn1_player.services.NotificationService
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.SimpleExoPlayer
+import java.util.*
 
 class NotificationService : Service() {
+
     override fun onCreate() {
         super.onCreate()
         player = SimpleExoPlayer.Builder(this).build()
@@ -53,6 +60,7 @@ class NotificationService : Service() {
     }
 
     override fun onStartCommand(intent: Intent, flags: Int, startId: Int): Int {
+
         if (intent.action == Constants.ACTION.STARTFOREGROUND_ACTION) {
         } else if (intent.action == Constants.ACTION.PREV_ACTION) {
             if (player != null) {
@@ -66,21 +74,26 @@ class NotificationService : Service() {
                     bigViews!!.setImageViewResource(R.id.status_bar_play, R.drawable.exo_icon_pause)
                     player!!.play()
                 }
+
                 mNotificationManager!!.notify(
                     Constants.NOTIFICATION_ID.FOREGROUND_SERVICE,
                     mBuilder!!.build()
                 )
             }
         } else if (intent.action == Constants.ACTION.PLAY_ACTION) {
-            if (!get_Song().contains("With Binance.com")) {
+            if(DataHolder.current != get_Media()){
+                println("I ran Media Player"+ get_Media() + "Current is set to "+ DataHolder.current)
+            //if (!get_Song().contains("With Binance.com")) {
                 player!!.removeMediaItem(0)
                 val mediaItem = MediaItem.fromUri(get_Media())
                 val currentTrack = get_Media()
                 player!!.setMediaItem(mediaItem)
                 player!!.prepare()
                 player!!.play()
-                showNotification()
-            }
+                DataHolder.current = get_Media()
+
+           }
+            showNotification()
         } else if (intent.action == Constants.ACTION.NEXT_ACTION) {
         } else if (intent.action ==
             Constants.ACTION.STOPFOREGROUND_ACTION
@@ -121,9 +134,10 @@ class NotificationService : Service() {
             this@NotificationService, 0,
             notificationIntent, PendingIntent.FLAG_IMMUTABLE
         )
+
         bigViews!!.setTextViewText(R.id.status_bar_track_name, get_Song())
         bigViews!!.setTextViewText(R.id.status_bar_artist_name, get_Artist())
-        bigViews!!.setTextViewText(R.id.status_bar_album_name, get_Media_Type())
+        bigViews!!.setTextViewText(R.id.status_bar_album_name, get_Media_Type().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.ROOT) else it.toString() })
         bigViews!!.setImageViewResource(R.id.status_bar_play, R.drawable.exo_icon_pause)
         val notificationClose = Intent(this@NotificationService, NotificationService::class.java)
         notificationClose.action = Constants.ACTION.STOPFOREGROUND_ACTION
@@ -142,6 +156,7 @@ class NotificationService : Service() {
         mBuilder = NotificationCompat.Builder(
             applicationContext, "notify_001"
         )
+
         val bigText = NotificationCompat.BigTextStyle()
         mBuilder!!.setCustomContentView(bigViews)
         mBuilder!!.setCustomBigContentView(bigViews)
@@ -149,18 +164,24 @@ class NotificationService : Service() {
         mBuilder!!.setSmallIcon(R.mipmap.drn1logo)
         mBuilder!!.setContentTitle(get_Song())
         mBuilder!!.setContentText(get_Artist())
-        mBuilder!!.priority = Notification.PRIORITY_MAX
+        mBuilder!!.priority = Notification.PRIORITY_LOW
+        //mBuilder!!.setStyle(mediaStyle)
         mBuilder!!.setStyle(bigText)
         mNotificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = "notify_001"
             val channel = NotificationChannel(
                 channelId,
-                "Channel human readable title",
-                NotificationManager.IMPORTANCE_HIGH
+                "Now Playing",
+                IMPORTANCE_LOW
+
             )
+
             mNotificationManager!!.createNotificationChannel(channel)
+            mBuilder!!.setBadgeIconType(NotificationCompat.BADGE_ICON_SMALL)
             mBuilder!!.setChannelId(channelId)
+            mBuilder!!.setLargeIcon(BitmapFactory.decodeResource(getResources(),R.mipmap.drn1logo))
+            mBuilder!!.setSound(null)
         }
         startForeground(Constants.NOTIFICATION_ID.FOREGROUND_SERVICE, mBuilder!!.build())
     }

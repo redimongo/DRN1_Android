@@ -50,7 +50,7 @@ class Mplayer : Fragment(), View.OnClickListener {
 
     override fun onStart() {
         super.onStart()
-        // println("FIRST START " + DataHolder.get_Media())
+         println("FIRST START " + DataHolder.get_Media())
 //        if (!player.isPlaying) {
 //            println("button pressed & Playing")
 //            play()

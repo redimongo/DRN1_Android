@@ -15,7 +15,7 @@ class MediaCore {
 
          if(DataHolder.get_Media_Type() == "radio") {
              //https://api.drn1.com.au:9000/nowplaying/\(stationurl)?uuid=\(MusicPlayer.uuid!)
-             println("https://api.drn1.com.au:9000/nowplaying/" + DataHolder.get_Score() + "?uuid=" + DataHolder.get_Uuid())
+             //println("https://api.drn1.com.au:9000/nowplaying/" + DataHolder.get_Score() + "?uuid=" + DataHolder.get_Uuid())
 
 
              val url = "https://api.drn1.com.au:9000/nowplaying/" + DataHolder.get_Score() + "?uuid=" + DataHolder.get_Uuid()

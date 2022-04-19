@@ -6,6 +6,8 @@ object DataHolder {
 
     private var UUID = "null"
 
+    var current = "null";
+
     private var MediaPlayerImage = "https://storage.googleapis.com/ad-system/bannerads/qrcode-4.jpeg"
 
     private var Media_Type = "radio"

@@ -8,7 +8,8 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.flurry.android.FlurryAgent
 import com.squareup.picasso.Picasso
-import java.util.HashMap
+import java.math.BigInteger
+import java.util.*
 
 
 class MainStationAdapter(val stationsFeed: StationsFeed) :
@@ -74,12 +75,17 @@ class StationViewHolder(val view: View, var station: Data? = null) : RecyclerVie
         view.setOnClickListener {
             val articleParams: MutableMap<String, String> = HashMap()
             articleParams["name"] = station?.name.toString()
-            FlurryAgent.logEvent("Station_Change", articleParams)
-
             DataHolder.set_Media_Type("radio")
             DataHolder.set_Score(station?.name.toString())
+            println(station?.listenlive.toString())
             DataHolder.set_Media(station?.listenlive.toString() + "?uuid=" + DataHolder.get_Uuid())
+            println("Just checking Set Data "+DataHolder.get_Media())
+            val lUUID = UUID.randomUUID().toString()
+
+            println("UUID IS "+lUUID);
             MediaCore().nowplaying()
+            FlurryAgent.logEvent("Station_Change", articleParams)
+
         }
     }
 
